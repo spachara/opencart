@@ -45,14 +45,15 @@
     <?php echo $language; ?>
     <div id="top-links" class="nav pull-right">
       <ul class="list-inline">
+      <li><a href="<?php echo $contact; ?>"><img src="image/catalog/line-icon.png" alt="Line" title="Line"></a> <span class="hidden-xs hidden-sm hidden-md">Signatural</span></li>
         <li><a href="<?php echo $contact; ?>"><i class="fa fa-phone"></i></a> <span class="hidden-xs hidden-sm hidden-md"><?php echo $telephone; ?></span></li>
         <li class="dropdown"><a href="<?php echo $account; ?>" title="<?php echo $text_account; ?>" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <span class="hidden-xs hidden-sm hidden-md"><?php echo $text_account; ?></span> <span class="caret"></span></a>
           <ul class="dropdown-menu dropdown-menu-right">
             <?php if ($logged) { ?>
             <li><a href="<?php echo $account; ?>"><?php echo $text_account; ?></a></li>
             <li><a href="<?php echo $order; ?>"><?php echo $text_order; ?></a></li>
-            <li><a href="<?php echo $transaction; ?>"><?php echo $text_transaction; ?></a></li>
-            <li><a href="<?php echo $download; ?>"><?php echo $text_download; ?></a></li>
+            <!--<li><a href="<?php echo $transaction; ?>"><?php echo $text_transaction; ?></a></li>
+            <li><a href="<?php echo $download; ?>"><?php echo $text_download; ?></a></li>-->
             <li><a href="<?php echo $logout; ?>"><?php echo $text_logout; ?></a></li>
             <?php } else { ?>
             <li><a href="<?php echo $register; ?>"><?php echo $text_register; ?></a></li>
