@@ -33,6 +33,8 @@ $_['column_model']             = '品番';
 $_['column_quantity']          = '数量';
 $_['column_price']             = '価格';
 $_['column_total']             = '合計金額';
+$_['column_unit_weight']      = '単位重量';
+$_['column_total_weight']      = '総重量';
 
 // Error
 $_['error_stock']              = '*** の印のある商品は在庫が不足しております。数量を変更してください!';

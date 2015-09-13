@@ -39,6 +39,8 @@ $_['column_model']          = 'รหัส/รุ่น';
 $_['column_quantity']       = 'จำนวน';
 $_['column_price']          = 'ราคาต่อหน่วย';
 $_['column_total']          = 'รวม';
+$_['column_unit_weight']   = 'น้ำหนักต่อหน่วย';
+$_['column_total_weight']   = 'น้ำหนักรวม';
 
 // Error
 $_['error_stock']            = 'สินค้าที่มี *** คือสินค้าที่ยังไม่พร้อมจำหน่ายหรือสินค้าอาจหมดแล้ว';
