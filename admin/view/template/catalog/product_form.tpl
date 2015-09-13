@@ -560,6 +560,7 @@
                               <td class="text-left"><?php echo $entry_option_value; ?></td>
                               <td class="text-right"><?php echo $entry_quantity; ?></td>
                               <td class="text-left"><?php echo $entry_subtract; ?></td>
+                              <td class="text-left"><?php echo $entry_stock_status; ?></td>
                               <td class="text-right"><?php echo $entry_price; ?></td>
                               <td class="text-right"><?php echo $entry_option_points; ?></td>
                               <td class="text-right"><?php echo $entry_weight; ?></td>
@@ -591,6 +592,19 @@
                                   <option value="0" selected="selected"><?php echo $text_no; ?></option>
                                   <?php } ?>
                                 </select></td>
+                                
+                                <td class="text-right"><select name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][stock_status_id]" class="form-control">
+                                    <?php foreach ($stock_statuses as $stock_status) { ?>
+                                    <?php if ($stock_status['stock_status_id'] == $product_option_value['stock_status_id']) { ?>
+                                    <option value="<?php echo $stock_status['stock_status_id']; ?>" selected="selected"><?php echo $stock_status['name']; ?></option>
+                                    <?php } else { ?>
+                                    <option value="<?php echo $stock_status['stock_status_id']; ?>"><?php echo $stock_status['name']; ?></option>
+                                    <?php } ?>
+                                    <?php } ?>
+                                </select>
+                                <!--<input type="text" name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][stock_limit]" value="<?php echo $product_option_value['stock_limit']; ?>" placeholder="<?php echo $entry_stock_limit; ?>" class="form-control" />--></td>
+                                
+                                
                               <td class="text-right"><select name="product_option[<?php echo $option_row; ?>][product_option_value][<?php echo $option_value_row; ?>][price_prefix]" class="form-control">
                                   <?php if ($product_option_value['price_prefix'] == '+') { ?>
                                   <option value="+" selected="selected">+</option>
@@ -637,7 +651,7 @@
                           </tbody>
                           <tfoot>
                             <tr>
-                              <td colspan="6"></td>
+                              <td colspan="7"></td>
                               <td class="text-left"><button type="button" onclick="addOptionValue('<?php echo $option_row; ?>');" data-toggle="tooltip" title="<?php echo $button_option_value_add; ?>" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>
                             </tr>
                           </tfoot>
@@ -1198,6 +1212,7 @@ $('input[name=\'option\']').autocomplete({
 			html += '        <td class="text-left"><?php echo $entry_option_value; ?></td>';
 			html += '        <td class="text-right"><?php echo $entry_quantity; ?></td>';
 			html += '        <td class="text-left"><?php echo $entry_subtract; ?></td>';
+                        html += '        <td class="text-left"><?php echo $entry_stock_status; ?></td>';
 			html += '        <td class="text-right"><?php echo $entry_price; ?></td>';
 			html += '        <td class="text-right"><?php echo $entry_option_points; ?></td>';
 			html += '        <td class="text-right"><?php echo $entry_weight; ?></td>';
@@ -1208,7 +1223,7 @@ $('input[name=\'option\']').autocomplete({
 			html += '    </tbody>';
 			html += '    <tfoot>';
 			html += '      <tr>';
-			html += '        <td colspan="6"></td>';
+			html += '        <td colspan="7"></td>';
 			html += '        <td class="text-left"><button type="button" onclick="addOptionValue(' + option_row + ');" data-toggle="tooltip" title="<?php echo $button_option_value_add; ?>" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>';
 			html += '      </tr>';
 			html += '    </tfoot>';
@@ -1260,8 +1275,11 @@ function addOptionValue(option_row) {
 	html += '  <td class="text-left"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][subtract]" class="form-control">';
 	html += '    <option value="1"><?php echo $text_yes; ?></option>';
 	html += '    <option value="0"><?php echo $text_no; ?></option>';
-	html += '  </select></td>';
-	html += '  <td class="text-right"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][price_prefix]" class="form-control">';
+	html += '  </select></td>';      
+        html += '  <td class="text-right"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][stock_status_id]" class="form-control">';
+	html += $('#input-stock-status').html();
+	html += '  </select><input type="text" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][stock_limit]" value="" placeholder="<?php echo $entry_stock_limit; ?>" class="form-control" /></td>';
+        html += '  <td class="text-right"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][price_prefix]" class="form-control">';
 	html += '    <option value="+">+</option>';
 	html += '    <option value="-">-</option>';
 	html += '  </select>';
