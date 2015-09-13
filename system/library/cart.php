@@ -21,10 +21,12 @@ class Cart {
 		if (!$this->data) {
 			foreach ($this->session->data['cart'] as $key => $quantity) {
 				$product = unserialize(base64_decode($key));
-
+                  
 				$product_id = $product['product_id'];
 
 				$stock = true;
+                                
+                                $preorder = true;
 
 				// Options
 				if (!empty($product['option'])) {
@@ -54,7 +56,7 @@ class Cart {
 
 						if ($option_query->num_rows) {
 							if ($option_query->row['type'] == 'select' || $option_query->row['type'] == 'radio' || $option_query->row['type'] == 'image') {
-								$option_value_query = $this->db->query("SELECT pov.option_value_id, ovd.name, pov.quantity, pov.subtract, pov.price, pov.price_prefix, pov.points, pov.points_prefix, pov.weight, pov.weight_prefix FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (ov.option_value_id = ovd.option_value_id) WHERE pov.product_option_value_id = '" . (int)$value . "' AND pov.product_option_id = '" . (int)$product_option_id . "' AND ovd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
+								$option_value_query = $this->db->query("SELECT pov.option_value_id, ovd.name, pov.quantity, pov.subtract, pov.price, pov.price_prefix, pov.points, pov.points_prefix, pov.weight, pov.weight_prefix, pov.stock_status_id, pov.stock_limit FROM " . DB_PREFIX . "product_option_value pov LEFT JOIN " . DB_PREFIX . "option_value ov ON (pov.option_value_id = ov.option_value_id) LEFT JOIN " . DB_PREFIX . "option_value_description ovd ON (ov.option_value_id = ovd.option_value_id) WHERE pov.product_option_value_id = '" . (int)$value . "' AND pov.product_option_id = '" . (int)$product_option_id . "' AND ovd.language_id = '" . (int)$this->config->get('config_language_id') . "'");
 
 								if ($option_value_query->num_rows) {
 									if ($option_value_query->row['price_prefix'] == '+') {
@@ -75,9 +77,14 @@ class Cart {
 										$option_weight -= $option_value_query->row['weight'];
 									}
 
-									if ($option_value_query->row['subtract'] && (!$option_value_query->row['quantity'] || ($option_value_query->row['quantity'] < $quantity))) {
+									if ($option_value_query->row['subtract'] && (!$option_value_query->row['quantity'] || ($option_value_query->row['quantity'] < $quantity)) ) {
 										$stock = false;
 									}
+                                                                        //print_r($stock+1);
+                                                                        if($option_value_query->row['subtract'] && (!$option_value_query->row['quantity'] || ($option_value_query->row['quantity'] < $quantity)) && !in_array($option_value_query->row['stock_status_id'], $this->config->get('config_stock_checkout_status'))){
+                                                                                $preorder = false;
+                                                                        }
+                                                                            
 
 									$option_data[] = array(
 										'product_option_id'       => $product_option_id,
@@ -94,7 +101,9 @@ class Cart {
 										'points'                  => $option_value_query->row['points'],
 										'points_prefix'           => $option_value_query->row['points_prefix'],
 										'weight'                  => $option_value_query->row['weight'],
-										'weight_prefix'           => $option_value_query->row['weight_prefix']
+										'weight_prefix'           => $option_value_query->row['weight_prefix'],
+										'stock_status_id'         => $option_value_query->row['stock_status_id'],
+										'stock_limit'             => $option_value_query->row['stock_limit']
 									);
 								}
 							} elseif ($option_query->row['type'] == 'checkbox' && is_array($value)) {
@@ -123,6 +132,10 @@ class Cart {
 										if ($option_value_query->row['subtract'] && (!$option_value_query->row['quantity'] || ($option_value_query->row['quantity'] < $quantity))) {
 											$stock = false;
 										}
+                                                                                
+                                                                                
+                                                                                $preorder = $this->config->get('config_stock_checkout');
+                                                                                
 
 										$option_data[] = array(
 											'product_option_id'       => $product_option_id,
@@ -139,7 +152,9 @@ class Cart {
 											'points'                  => $option_value_query->row['points'],
 											'points_prefix'           => $option_value_query->row['points_prefix'],
 											'weight'                  => $option_value_query->row['weight'],
-											'weight_prefix'           => $option_value_query->row['weight_prefix']
+											'weight_prefix'           => $option_value_query->row['weight_prefix'],
+                                                                                        'stock_status_id'         => '',
+                                                                                        'stock_limit'             => ''
 										);
 									}
 								}
@@ -159,8 +174,11 @@ class Cart {
 									'points'                  => '',
 									'points_prefix'           => '',
 									'weight'                  => '',
-									'weight_prefix'           => ''
+									'weight_prefix'           => '',
+                                                                        'stock_status_id'         => '',
+                                                                        'stock_limit'             => ''
 								);
+                                                                $preorder = $this->config->get('config_stock_checkout');
 							}
 						}
 					}
@@ -238,7 +256,7 @@ class Cart {
 					} else {
 						$recurring = false;
 					}
-
+ 
 					$this->data[$key] = array(
 						'key'             => $key,
 						'product_id'      => $product_query->row['product_id'],
@@ -263,7 +281,8 @@ class Cart {
 						'width'           => $product_query->row['width'],
 						'height'          => $product_query->row['height'],
 						'length_class_id' => $product_query->row['length_class_id'],
-						'recurring'       => $recurring
+						'recurring'       => $recurring,
+						'preorder'        => $preorder
 					);
 				} else {
 					$this->remove($key);
@@ -271,6 +290,7 @@ class Cart {
 			}
 		}
 
+                 //   exit(0);
 		return $this->data;
 	}
 
@@ -412,8 +432,19 @@ class Cart {
 				$stock = false;
 			}
 		}
-
 		return $stock;
+	}
+        
+        public function allowPreOrder() {
+		$preorder = true;
+
+		foreach ($this->getProducts() as $product) {
+			if (!$product['preorder']) {
+				$preorder = false;
+			}
+		}
+
+		return $preorder;
 	}
 
 	public function hasShipping() {

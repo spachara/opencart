@@ -33,6 +33,8 @@ $_['column_model']             = 'Model';
 $_['column_quantity']          = 'Quantity';
 $_['column_price']             = 'Unit Price';
 $_['column_total']             = 'Total';
+$_['column_unit_weight']      = 'Unit Weight';
+$_['column_total_weight']      = 'Total Weight';
 
 // Error
 $_['error_stock']              = 'Products marked with *** are not available in the desired quantity or not in stock!';
