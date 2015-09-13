@@ -886,6 +886,29 @@
                     </label>
                   </div>
                 </div>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-stock-checkout-status"></label>
+                  <div class="col-sm-10">
+                    <div class="well well-sm" style="height: 150px; overflow: auto;">
+                       <?php foreach ($stock_statuses as $stock_status) { ?>
+                      <div class="checkbox">
+                        <label>
+                          <?php if (in_array($stock_status['stock_status_id'], $config_stock_checkout_status)) { ?>
+                          <input type="checkbox" name="config_stock_checkout_status[]" value="<?php echo $stock_status['stock_status_id']; ?>" checked="checked" />
+                          <?php echo $stock_status['name']; ?>
+                          <?php } else { ?>
+                          <input type="checkbox" name="config_stock_checkout_status[]" value="<?php echo $stock_status['stock_status_id']; ?>" />
+                          <?php echo $stock_status['name']; ?>
+                          <?php } ?>
+                        </label>
+                      </div>
+                      <?php } ?>
+                    </div>
+                    <?php if ($error_stock_checkout_status) { ?>
+                    <div class="text-danger"><?php echo $error_stock_checkout_status; ?></div>
+                    <?php } ?>
+                  </div>
+                </div>
               </fieldset>
               <fieldset>
                 <legend><?php echo $text_affiliate; ?></legend>

@@ -323,6 +323,12 @@ class ControllerSettingSetting extends Controller {
 		} else {
 			$data['error_complete_status'] = '';
 		}
+                
+                if (isset($this->error['stock_checkout_status'])) {
+			$data['error_stock_checkout_status'] = $this->error['error_stock_checkout_status'];
+		} else {
+			$data['error_stock_checkout_status'] = '';
+		}
 
 		if (isset($this->error['ftp_hostname'])) {
 			$data['error_ftp_hostname'] = $this->error['ftp_hostname'];
@@ -846,6 +852,17 @@ class ControllerSettingSetting extends Controller {
 		} else {
 			$data['config_complete_status'] = array();
 		}
+                
+                $this->load->model('localisation/stock_status');
+
+		$data['stock_statuses'] = $this->model_localisation_stock_status->getStockStatuses();
+                if (isset($this->request->post['config_stock_checkout_status'])) {
+			$data['config_stock_checkout_status'] = $this->request->post['config_stock_checkout_status'];
+		} elseif ($this->config->get('config_stock_checkout_status')) {
+			$data['config_stock_checkout_status'] = $this->config->get('config_stock_checkout_status');
+		} else {
+			$data['config_stock_checkout_status'] = array();
+		}
 
 		$this->load->model('localisation/order_status');
 
@@ -1343,6 +1360,10 @@ class ControllerSettingSetting extends Controller {
 
 		if (!isset($this->request->post['config_complete_status'])) {
 			$this->error['complete_status'] = $this->language->get('error_complete_status');
+		}
+                
+                if (!isset($this->request->post['config_stock_checkout_status'])) {
+			$this->error['stock_checkout_status'] = $this->language->get('error_stock_checkout_status');
 		}
 
 		if (!$this->request->post['config_image_category_width'] || !$this->request->post['config_image_category_height']) {
