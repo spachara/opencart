@@ -337,20 +337,34 @@ class ControllerProductProduct extends Controller {
 				$product_option_value_data = array();
 
 				foreach ($option['product_option_value'] as $option_value) {
-					if (!$option_value['subtract'] || ($option_value['quantity'] > 0)) {
+					if (!$option_value['subtract'] || ($option_value['quantity'] > 0) || true) {
 						if ((($this->config->get('config_customer_price') && $this->customer->isLogged()) || !$this->config->get('config_customer_price')) && (float)$option_value['price']) {
 							$price = $this->currency->format($this->tax->calculate($option_value['price'], $product_info['tax_class_id'], $this->config->get('config_tax') ? 'P' : false));
 						} else {
 							$price = false;
 						}
-
-						$product_option_value_data[] = array(
+                                                if ($option_value['quantity']  <= 0) {
+                                                        $stock = $option_value['stock_status_name'];
+                                                        $disabled = false;
+                                                        if(!in_array($option_value['stock_status_id'], $this->config->get('config_stock_checkout_status'))){
+                                                            $disabled =true;
+                                                        }
+                                                } elseif ($this->config->get('config_stock_display')) {
+                                                        $stock = $option_value['quantity'];
+                                                        $disabled = false;
+                                                } else {
+                                                        $stock = $this->language->get('text_instock');
+                                                        $disabled = false;
+                                                }
+                                                    $product_option_value_data[] = array(
 							'product_option_value_id' => $option_value['product_option_value_id'],
 							'option_value_id'         => $option_value['option_value_id'],
 							'name'                    => $option_value['name'],
 							'image'                   => $this->model_tool_image->resize($option_value['image'], 50, 50),
 							'price'                   => $price,
-							'price_prefix'            => $option_value['price_prefix']
+							'price_prefix'            => $option_value['price_prefix'],
+							'stock'                   => $stock,
+                                                        'disabled'                => $disabled
 						);
 					}
 				}
