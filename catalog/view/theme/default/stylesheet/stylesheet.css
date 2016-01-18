@@ -190,12 +190,12 @@ div.required .control-label:before {
 }
 /* menu */
 #menu {
-	/*background-color: #229ac8;
+	background-color: #229ac8;
 	background-image: linear-gradient(to bottom, #23a1d1, #1f90bb);
-	border-color: #1f90bb #1f90bb #145e7a; */
-	background-color: #7F933C;
+	border-color: #1f90bb #1f90bb #145e7a; 
+	/*background-color: #7F933C;
 	background-image: linear-gradient(to bottom, #B3CA7D, #7F933C);
-	border-color: #7F933C #7F933C #7F933C;
+	border-color: #7F933C #7F933C #7F933C;*/
 	background-repeat: repeat-x;
 	min-height: 40px;
 }
