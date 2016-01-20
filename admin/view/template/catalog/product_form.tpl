@@ -456,7 +456,7 @@
             </div>
             <div class="tab-pane" id="tab-option">
               <div class="row">
-                <div class="col-sm-2">
+                <div class="col-sm-2" style="display:none">
                   <ul class="nav nav-pills nav-stacked" id="option">
                     <?php $option_row = 0; ?>
                     <?php foreach ($product_options as $product_option) { ?>
@@ -468,7 +468,7 @@
                     </li>
                   </ul>
                 </div>
-                <div class="col-sm-10">
+                <div class="col-sm-12">
                   <div class="tab-content">
                     <?php $option_row = 0; ?>
                     <?php $option_value_row = 0; ?>
@@ -478,7 +478,7 @@
                       <input type="hidden" name="product_option[<?php echo $option_row; ?>][name]" value="<?php echo $product_option['name']; ?>" />
                       <input type="hidden" name="product_option[<?php echo $option_row; ?>][option_id]" value="<?php echo $product_option['option_id']; ?>" />
                       <input type="hidden" name="product_option[<?php echo $option_row; ?>][type]" value="<?php echo $product_option['type']; ?>" />
-                      <div class="form-group">
+                      <div class="form-group"  style="display:none">
                         <label class="col-sm-2 control-label" for="input-required<?php echo $option_row; ?>"><?php echo $entry_required; ?></label>
                         <div class="col-sm-10">
                           <select name="product_option[<?php echo $option_row; ?>][required]" id="input-required<?php echo $option_row; ?>" class="form-control">
@@ -1265,13 +1265,102 @@ $('input[name=\'option\']').autocomplete({
 //--></script> 
   <script type="text/javascript"><!--		
 var option_value_row = <?php echo $option_value_row; ?>;
+// Read a page's GET URL variables and return them as an associative array.
+function getUrlVars()
+{
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++)
+    {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+function appendSelectOption(){
+	var route = getUrlVars()["route"];
+	if(route.indexOf('add') >= 0)
+	{
+		$.ajax({
+			url: 'index.php?route=catalog/option/autocomplete&token=<?php echo $token; ?>&filter_name=' +  encodeURIComponent('size'),
+			dataType: 'json',			
+			success: function(json) {
+				var a = $.map(json, function(item) {
+					return {
+						category: item['category'],
+						label: item['name'],
+						value: item['option_id'],
+						type: item['type'],
+						option_value: item['option_value']
+					}
+				});
+				var item = a[0];
+				var html ='';
+				html  += '<div class="tab-pane" id="tab-option' + option_row + '">';
+				html += '	<input type="hidden" name="product_option[' + option_row + '][product_option_id]" value="" />';
+				html += '	<input type="hidden" name="product_option[' + option_row + '][name]" value="' + item['label'] + '" />';
+				html += '	<input type="hidden" name="product_option[' + option_row + '][option_id]" value="' + item['value'] + '" />';
+				html += '	<input type="hidden" name="product_option[' + option_row + '][type]" value="' + item['type'] + '" />';
+				
+				html += '	<div class="form-group"  style="display:none">';
+				html += '	  <label class="col-sm-2 control-label" for="input-required' + option_row + '"><?php echo $entry_required; ?></label>';
+				html += '	  <div class="col-sm-10"><select name="product_option[' + option_row + '][required]" id="input-required' + option_row + '" class="form-control">';
+				html += '	      <option value="1"><?php echo $text_yes; ?></option>';
+				html += '	      <option value="0"><?php echo $text_no; ?></option>';
+				html += '	  </select></div>';
+				html += '	</div>';
+				html += '<div class="table-responsive">';
+				html += '  <table id="option-value' + option_row + '" class="table table-striped table-bordered table-hover">';
+				html += '  	 <thead>'; 
+				html += '      <tr>';
+				html += '        <td class="text-left"><?php echo $entry_option_value; ?></td>';
+				html += '        <td class="text-right"><?php echo $entry_quantity; ?></td>';
+				html += '        <td class="text-left"><?php echo $entry_subtract; ?></td>';
+							html += '        <td class="text-left"><?php echo $entry_stock_status; ?></td>';
+				html += '        <td class="text-right"><?php echo $entry_price; ?></td>';
+				html += '        <td class="text-right"><?php echo $entry_option_points; ?></td>';
+				html += '        <td class="text-right"><?php echo $entry_weight; ?></td>';
+				html += '        <td></td>';
+				html += '      </tr>';
+				html += '  	 </thead>';
+				html += '  	 <tbody>';
+				html += '    </tbody>';
+				html += '    <tfoot>';
+				html += '      <tr>';
+				html += '        <td colspan="7"></td>';
+				html += '        <td class="text-left"><button type="button" onclick="addOptionValue(' + option_row + ');" data-toggle="tooltip" title="<?php echo $button_option_value_add; ?>" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>';
+				html += '      </tr>';
+				html += '    </tfoot>';
+				html += '  </table>';
+				html += '</div>';
+				
+				html += '  <select id="option-values' + option_row + '" style="display: none;">';
+				
+				for (i = 0; i < item['option_value'].length; i++) {
+					html += '  <option value="' + item['option_value'][i]['option_value_id'] + '">' + item['option_value'][i]['name'] + '</option>';
+				}
 
+				html += '  </select>';	
+				html += '</div>';	
+		
+		
+				$('#tab-option .tab-content').append(html);
+				$('#option > li:last-child').before('<li><a href="#tab-option' + option_row + '" data-toggle="tab"><i class="fa fa-minus-circle" onclick="$(\'a[href=\\\'#tab-option' + option_row + '\\\']\').parent().remove(); $(\'#tab-option' + option_row + '\').remove(); $(\'#option a:first\').tab(\'show\')"></i> ' + item['label'] + '</li>');
+				
+				$('#option a[href=\'#tab-option' + option_row + '\']').tab('show');
+				option_row++;
+			}
+		});
+	}
+}
+appendSelectOption();
 function addOptionValue(option_row) {	
 	html  = '<tr id="option-value-row' + option_value_row + '">';
-	html += '  <td  style="vertical-align:baseline" rowspan="2" class="text-left"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][option_value_id]" class="form-control">';
+	html += '  <td  style="vertical-align:baseline" rowspan="2" zzclass="text-left"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][option_value_id]" class="form-control">';
 	html += $('#option-values' + option_row).html();
 	html += '  </select><input type="hidden" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][product_option_value_id]" value="" /></td>';
-	html += '  <td style="vertical-align:baseline" rowspan="2" class="text-right"><input type="text" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][quantity]" value="" placeholder="<?php echo $entry_quantity; ?>" class="form-control" /></td>'; 
+	html += '  <td style="vertical-align:baseline" class="text-right"><input disabled="disabled" type="text" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][quantity]" value="" placeholder="<?php echo $entry_quantity; ?>" class="form-control" /></td>'; 
 	html += '  <td style="vertical-align:baseline" class="text-left"><select name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][subtract]" class="form-control">';
 	html += '    <option value="1"><?php echo $text_yes; ?></option>';
 	html += '    <option value="0"><?php echo $text_no; ?></option>';
@@ -1297,7 +1386,7 @@ function addOptionValue(option_row) {
 	html += '  <td class="text-left" rowspan="2"><button type="button" onclick="$(this).tooltip(\'destroy\');$(\'#option-value-row' + option_value_row + '\').remove();$(\'tr[name=option-value-row' + option_value_row + '\').remove();" data-toggle="tooltip" rel="tooltip" title="<?php echo $button_remove; ?>" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
 	html += '</tr>';
         html += '<tr name="option-value-row' + option_value_row + '">';
-	html += '<td class="text-center" colspan="5"> ';
+	html += '<td class="text-center" colspan="6"> ';
         html += '<table width="100%"><tr><th style="text-align:center" colspan="5">Add Stock</th></tr><tr><th>Qty</th><th>Cost</th><th>Purchase_date</th><th>Bill_No</th><th>Vendor</th></tr>';
           html += '<tr name="option-value-row' + option_value_row + '">';
 	html += '<td class="text-left"><input type="text" name="product_option[' + option_row + '][product_option_value][' + option_value_row + '][add_qty]" value="" placeholder="<?php echo $entry_weight; ?>" class="form-control" /></td>';
